@@ -1,0 +1,21 @@
+#1/23
+prax:
+
+H x-xx- x-xx- x-xx- x-xx-
+S ----x x---x ----- xx-x-
+K xx-x- -x--- -x-x- x---x
+
+H x--xx x--xx x--xx x--xx
+S ----x x---x ----- xx-x-
+K xx-x- -x--- -x-x- ----x
+
+
+
+HT HT SN SN LT LT | HT HT SN LT LT SN
+L  L  R  L  R  R  | L  R  L  R  L  R
+
+
+click: x-- -x- --x ---
+hihat: x-x x-x x-x x-x <- then flatten this into even 8ths
+snare: --- --- x-- ---
+kickd: x-- x-- --- ---

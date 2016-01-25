@@ -1,0 +1,7 @@
+.DS_Store
+notes.txt
+*.wav
+*.aif
+*.mp3
+*.ogg
+resources/
