@@ -1,6 +1,11 @@
-#1/23
-prax:
+#1/26
+6/8:
+RLRRLR LRLRLL (or RLLRLR LRLRLL)
+FSSSSS HSSFSS
+^ F being floor tom and H being hi tom
 
+
+#1/23
 H x-xx- x-xx- x-xx- x-xx-
 S ----x x---x ----- xx-x-
 K xx-x- -x--- -x-x- x---x
