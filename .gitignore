@@ -6,3 +6,4 @@ notes.txt
 *.mp3
 *.ogg
 resources/
+create_assets.sh
