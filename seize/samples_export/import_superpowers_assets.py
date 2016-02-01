@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 '''
-Batch Importer + Updater for Superpowers Assets
+Batch Importer+Updater for Superpowers Assets
 - David Su (http://usdivad.com/)
 
 This is mostly for my personal use (for importing/updating audio assets),
