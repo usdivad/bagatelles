@@ -1,13 +1,27 @@
+'''
+Batch Importer+Updater for Superpowers Assets
+- David Su (http://usdivad.com/)
+
+This is mostly for my personal use (for importing/updating audio assets),
+but it might prove useful for others as well.
+
+Check out the comment block above the main method for instructions!
+'''
+
+import copy
 import json
 import os
 import re
 from shutil import copyfile
 
+
+# directory name -> asset id
 def get_asset_id_from_filename(asset_name):
     found = re.search(r'(?<=\()\d+(?=\))', asset_name)
     id = found.group(0) if found else None
     return id
 
+# asset entry (making use of name and id) -> directory name
 def asset_entry_to_path(asset_entry):
     return '{} ({})'.format(asset_entry['name'], asset_entry['id'])
 
@@ -16,7 +30,7 @@ def asset_entry_to_path(asset_entry):
 def get_asset_entry(entries, asset_name, original_path):
     asset_entry = None
     # print original_path
-    for entry in entries:
+    for entry in copy.deepcopy(entries):
         if entry['name'] == asset_name:
             entry['path_to_destination_parent'] = original_path
             asset_entry = entry
@@ -27,12 +41,31 @@ def get_asset_entry(entries, asset_name, original_path):
 
 # find highest entry id using DFS
 def get_highest_entry_id(entries, highest):
-    for entry in entries:
+    for entry in entries[:]:
         if int(entry['id']) > highest:
             highest = int(entry['id'])
         if 'children' in entry:
             highest = get_highest_entry_id(entry['children'], highest)
     return highest
+
+# add new entry to entries in the spot dictated by parent id list
+def add_entry(new_entry, entries, parent_id_list=[]):
+    if len(parent_id_list) < 1:
+        entries.append(new_entry)
+        print new_entry
+        return entries
+
+    id = parent_id_list.pop(0)
+
+    for i, entry in enumerate(entries, start=0):
+        if entry['id'] == str(id):
+            if 'children' in entry:
+                entry['children'] = add_entry(new_entry, entry['children'], parent_id_list)
+            else:
+                print 'Error: ID {} in parent_id_list has no children. Should it be the last element of the list?'.format(id)
+                # return entries
+
+    return entries
 
 # copy asset data and json files
 def copy_asset_files(asset_entry, asset_settings):
@@ -54,42 +87,69 @@ def copy_asset_files(asset_entry, asset_settings):
     copyfile(src_path, data_path)
 
     # write asset json
-    with open(json_path, 'w') as f:
-        f.write(asset_settings['json'])
+    if asset_settings['update_json']:
+        with open(json_path, 'w') as f:
+            f.write(asset_settings['json'])
 
     print 'success!\n'
 
+'''
+To use this you should change the properties in user_params:
+
+1. Update 'path_source' to point to the directory containing the assets you wish to import.
+2. Update 'path_project' to point to where your Superpowers project lives.
+   If you are adding new assets (i.e. creating files and updating entries.json):
+        a. Update 'path_destination_relative' to point to the destination directory you'd like to create the asset files in.
+        b. Update 'entry_parent_id_list' to contain a list of IDs of successive children that lead to your destination in entries.json.
+3. Change the asset type, extension, JSON string, and valid source extensions to import.
+   NOTE: You can set 'update_json' to False if you wish to retain your previous asset JSON files.
+'''
 if __name__ == '__main__':
+    # things you should adjust
+    user_params = {
+        'path_source': '/Users/usdivad/Documents/music/bagatelles/seize/samples_export/guitar_intro',
+        'path_project': '/Users/usdivad/Library/Superpowers/projects/seize',
+        'path_destination_relative': '/Audio (14)/Guitar Intro (15)',
+        'entry_parent_id_list': [14, 15],
+
+        'asset_valid_source_extensions': ['mp3'],
+
+        'asset_type': 'sound',
+        'asset_extension': 'dat',
+        'asset_json': '{\n  "formatVersion": 1,\n  "streaming": false\n}',
+        'asset_update_json': True
+    }
+
     # paths
-    path_source = '/Users/usdivad/Documents/music/bagatelles/seize/samples_export/guitar_intro'
-    path_project = '/Users/usdivad/Library/Superpowers/projects/seize'
+    path_source = user_params['path_source']
+    path_project = user_params['path_project']
     path_project_entries = path_project + '/entries.json'
     path_project_assets = path_project + '/assets'
-    path_destination = path_project_assets + '/Audio (14)/Guitar Intro (15)'
+    path_destination = path_project_assets + user_params['path_destination_relative']
 
     # file settings
-    valid_extensions = ['mp3']
+    valid_source_extensions = user_params['asset_valid_source_extensions']
     asset_settings = {
-        'type': 'sound',
-        'extension': 'dat',
-        'json': '{\n  "formatVersion": 1,\n  "streaming": false\n}',
-        'path_to_assets': path_project_assets
+        'type': user_params['asset_type'],
+        'extension': user_params['asset_extension'],
+        'json': user_params['asset_json'],
+        'update_json': user_params['asset_update_json'],
+        # 'path_to_assets': path_project_assets
     }
 
     # entries
     entries = []
     highest_id = 0
-    entry_parent_list = ['Audio', 'Guitar Intro']
+    entry_parent_id_list = user_params['entry_parent_id_list'] # essentially functions as a linked list
     with open(path_project_entries, 'r') as f:
         entries = json.loads(f.read())
 
-    highest_id = get_highest_entry_id(entries, 0)
-
-    test_entry = get_asset_entry(entries, 'A1', '')
+    # test_entry = get_asset_entry(entries, 'A1', '')
     # copy_asset_files(test_entry, asset_settings)
+    # print test_entry
 
-    print test_entry
-    print highest_id
+    highest_id = get_highest_entry_id(entries, 0)
+    print 'highest id: {}'.format(highest_id)
 
     # assets
     if not os.path.isdir(path_source):
@@ -99,7 +159,7 @@ if __name__ == '__main__':
     for asset_name in os.listdir(path_source):
         # check validity
         asset_is_valid = False
-        for ext in valid_extensions:
+        for ext in valid_source_extensions:
             if asset_name.endswith(ext):
                 asset_is_valid = True
 
@@ -116,18 +176,32 @@ if __name__ == '__main__':
                     'id': asset_id,
                     'name': asset_name,
                     'type': asset_settings['type'],
+                    # 'path_to_source': path_source + '/' + asset_name,
                     'path_to_destination_parent': path_destination
                 }
 
                 # add to entries.json
+                entries = add_entry({
+                    'id': str(asset_entry['id']),
+                    'name': asset_entry['name'],
+                    'type': asset_entry['type']
+                }, entries[:], entry_parent_id_list[:])
+            else:
+                print 'asset {} exists'.format(asset_name)
 
 
             # copy the asset data and json files
             asset_entry['path_to_source'] = path_source + '/' + asset_name
             copy_asset_files(asset_entry, asset_settings)
 
+    # write to entries.json
+    with open(path_project_entries, 'w') as f:
+        f.write(json.dumps(entries, indent=2, sort_keys=True))
 
-    # for filename in os.listdir(path_destination_full):
-    #     filepath_full = path_destination_full+'/'+filename
+    print 'done'
+
+
+    # for filename in os.listdir(path_destination):
+    #     filepath_full = path_destination+'/'+filename
     #     print get_asset_id_from_filename(filename)
     #     print os.path.isdir(filepath_full)
