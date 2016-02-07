@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 '''
-Batch Importer+Updater for Superpowers Assets
+Batch Importer + Updater for Superpowers Assets
 - David Su (http://usdivad.com/)
 
 This is mostly for my personal use (for importing/updating audio assets),
@@ -15,7 +15,7 @@ import json
 import os
 import re
 from shutil import copyfile
-
+import sys
 
 # directory name -> asset id
 def get_asset_id_from_filename(asset_name):
@@ -107,12 +107,16 @@ To use this you should change the properties in user_params:
    NOTE: You can set 'update_json' to False if you wish to retain your previous asset JSON files.
 '''
 if __name__ == '__main__':
+    path_source_relative = sys.argv[1] # e.g. "guitar_intro"
+    path_destination_relative = sys.argv[2] # e.g. "Audio (14)/Guitar Intro (15)"
+    entry_parent_id_list = [int(x) for x in sys.argv[3].split(",")] # e.g. "14,37"
+
     # things you should adjust
     user_params = {
-        'path_source': '/Users/usdivad/Documents/music/bagatelles/seize/samples_export/guitar_intro',
+        'path_source': '/Users/usdivad/Documents/music/bagatelles/seize/samples_export/' + path_source_relative,
         'path_project': '/Users/usdivad/Library/Superpowers/projects/seize',
-        'path_destination_relative': '/Audio (14)/Guitar Intro (15)',
-        'entry_parent_id_list': [14, 15],
+        'path_destination_relative': '/' + path_destination_relative,
+        'entry_parent_id_list': entry_parent_id_list,
 
         'asset_valid_source_extensions': ['mp3'],
 
