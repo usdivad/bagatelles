@@ -11,8 +11,8 @@ do
     ffmpeg -i "$f" "$f.mp3"
 done
 
-rename "s/$filename_to_replace//" *.mp3
-rename "s/.wav//" *.mp3
+rename -f "s/$filename_to_replace//" *.mp3
+rename -f "s/.wav//" *.mp3
 
 cd $dir_original
 
