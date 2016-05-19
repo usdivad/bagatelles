@@ -5,6 +5,8 @@ notes.txt
 *.aif
 *.mp3
 *.ogg
+*.zip
+cantatas/pdfs
 resources/
 create_assets.sh
 seize/game/
