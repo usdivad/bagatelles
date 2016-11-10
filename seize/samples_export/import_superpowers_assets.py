@@ -108,8 +108,8 @@ To use this you should change the properties in user_params:
 '''
 if __name__ == '__main__':
     path_source_relative = sys.argv[1] # e.g. "guitar_intro"
-    path_destination_relative = sys.argv[2] # e.g. "Audio (14)/Guitar Intro (15)"
-    entry_parent_id_list = [int(x) for x in sys.argv[3].split(",")] # e.g. "14,37"
+    path_destination_relative = sys.argv[2] # e.g. "Audio (14)/Instrumental Entrance (37)"
+    entry_parent_id_list = [int(x) for x in sys.argv[3].split(",")] # e.g. "14,37"; corresponds to the above
 
     # things you should adjust
     user_params = {
