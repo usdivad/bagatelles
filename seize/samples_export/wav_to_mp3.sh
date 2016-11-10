@@ -8,7 +8,7 @@ cd $dir_wavs_full
 for f in *.wav
 do
     echo "doing $f"
-    ffmpeg -i "$f" "$f.mp3"
+    ffmpeg -i "$f" -write_xing 0 "$f.mp3"
 done
 
 rename -f "s/$filename_to_replace//" *.mp3
