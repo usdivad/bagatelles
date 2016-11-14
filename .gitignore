@@ -1,6 +1,7 @@
 3d-character-1/
 .DS_Store
 notes.txt
+*.asd
 *.wav
 *.aif
 *.mp3
